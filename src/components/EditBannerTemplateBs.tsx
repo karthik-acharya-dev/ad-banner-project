@@ -1,12 +1,6 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faTimes,
-  faDownload,
-  faUpload,
-} from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faDownload, faUpload } from "@fortawesome/free-solid-svg-icons";
 import html2canvas from "html2canvas";
 import styles from "./EditBannerTemplateBs.module.css";
 
@@ -18,24 +12,17 @@ interface EditBannerProps {
     cta: string;
     image: string;
     background: string;
-    overlayImage: string | null;
   };
   onSave: (banner: any) => void;
   onClose: () => void;
 }
 
-const EditBannerTemplateBs: React.FC<EditBannerProps> = ({
-  banner,
-  onSave,
-  onClose,
-}) => {
+const EditBannerTemplateBs: React.FC<EditBannerProps> = ({ banner, onSave, onClose }) => {
   const [title, setTitle] = useState(banner.title);
   const [description, setDescription] = useState(banner.description);
   const [cta, setCta] = useState(banner.cta);
   const [image, setImage] = useState(banner.image);
-  const [overlayImage, setOverlayImage] = useState<string | null>(
-    banner.overlayImage
-  );
+  const [overlayImage, setOverlayImage] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,21 +30,16 @@ const EditBannerTemplateBs: React.FC<EditBannerProps> = ({
     setDescription(banner.description);
     setCta(banner.cta);
     setImage(banner.image);
-    setOverlayImage(banner.overlayImage ?? getRandomSampleImage());
+    setOverlayImage(null);
   }, [banner]);
 
   const handleSave = async () => {
     if (previewRef.current) {
       try {
-        const titleElement = previewRef.current.querySelector(
-          `.${styles.title}`
-        );
-        const descriptionElement = previewRef.current.querySelector(
-          `.${styles.description}`
-        );
-        const ctaElement = previewRef.current.querySelector(
-          `.${styles.ctaButton}`
-        );
+        // Cast elements to HTMLElement
+        const titleElement = previewRef.current.querySelector(`.${styles.title}`) as HTMLElement | null;
+        const descriptionElement = previewRef.current.querySelector(`.${styles.description}`) as HTMLElement | null;
+        const ctaElement = previewRef.current.querySelector(`.${styles.ctaButton}`) as HTMLElement | null;
 
         if (titleElement && descriptionElement && ctaElement) {
           titleElement.style.visibility = "hidden";
@@ -66,11 +48,12 @@ const EditBannerTemplateBs: React.FC<EditBannerProps> = ({
         }
 
         const canvas = await html2canvas(previewRef.current, {
-          backgroundColor: null,
-          scale: 2,
-          useCORS: true,
+          backgroundColor: null, // Ensure background is transparent
+          scale: 2, // Higher scale for better quality
+          useCORS: true, // Handle CORS issues
         });
 
+        // Restore the visibility of the text elements
         if (titleElement && descriptionElement && ctaElement) {
           titleElement.style.visibility = "visible";
           descriptionElement.style.visibility = "visible";
@@ -99,12 +82,14 @@ const EditBannerTemplateBs: React.FC<EditBannerProps> = ({
     if (previewRef.current) {
       try {
         const canvas = await html2canvas(previewRef.current, {
-          backgroundColor: null,
-          scale: 2,
-          useCORS: true,
+          backgroundColor: null, // Ensure background is transparent
+          scale: 2, // Higher scale for better quality
+          useCORS: true, // Handle CORS issues
         });
 
         const imageDataUrl = canvas.toDataURL("image/png");
+        console.log("Image Data URL:", imageDataUrl);
+
         const link = document.createElement("a");
         link.href = imageDataUrl;
         link.download = `${title}.png`;
@@ -117,6 +102,16 @@ const EditBannerTemplateBs: React.FC<EditBannerProps> = ({
       }
     }
   };
+
+  useEffect(() => {
+    if (overlayImage) {
+      const img = new Image();
+      img.src = overlayImage;
+      img.onload = () => {
+        console.log("Overlay image loaded successfully.");
+      };
+    }
+  }, [overlayImage]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -140,11 +135,6 @@ const EditBannerTemplateBs: React.FC<EditBannerProps> = ({
     "https://images.pexels.com/photos/9028884/pexels-photo-9028884.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   ];
 
-  const getRandomSampleImage = () => {
-    const randomIndex = Math.floor(Math.random() * sampleImages.length);
-    return sampleImages[randomIndex];
-  };
-
   return (
     <div className={styles.backdrop}>
       <div className={styles.bottomSheet}>
@@ -158,7 +148,7 @@ const EditBannerTemplateBs: React.FC<EditBannerProps> = ({
             className={styles.preview}
             ref={previewRef}
             id={`banner-${banner.id}`}
-            style={{ background: banner.background }}
+            style={{ background: banner.background }} // Ensure background color is applied
           >
             <img src={image} alt={title} className={styles.image} />
             {overlayImage && (
