@@ -1,0 +1,27 @@
+
+.gridContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 11px;
+  padding: 16px;
+}
+
+.column {
+  flex: 1 1 calc(33.333% - 16px);
+  max-width: calc(33.333% - 16px);
+}
+
+@media (max-width: 992px) {
+  .column {
+    flex: 1 1 calc(50% - 16px);
+    max-width: calc(50% - 16px);
+  }
+}
+
+@media (max-width: 650px) {
+  .column {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
